@@ -55,6 +55,9 @@ class BaseScraperSelenium(ABC):
         try:
             self.init_driver()
             self.driver.get(url)
+            if os.getenv('PRINT_SELENIUM_PAGES')=='1':
+                print(f"Fetched URL: {url}")
+                print(self.driver.page_source[:1000])
             element = WebDriverWait(self.driver, timeout).until(
                 EC.presence_of_element_located(presence_selector_tuple)
             )
