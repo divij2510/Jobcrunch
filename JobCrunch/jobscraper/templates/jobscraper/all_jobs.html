@@ -1,0 +1,113 @@
+{% extends 'jobscraper/base.html' %}
+
+{% block title %}All Jobs{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">All Jobs</h4>
+                <a href="{% url 'index' %}" class="btn btn-sm btn-outline-light">Back to Home</a>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <input type="text" id="jobSearch" class="form-control" placeholder="Search jobs...">
+                </div>
+                
+                {% if jobs %}
+                <div class="table-responsive">
+                    <table class="table table-hover" id="jobsTable">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Company</th>
+                                <th>Location</th>
+                                <th>Salary</th>
+                                <th>Source</th>
+                                <th>Date Scraped</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for job in jobs %}
+                            <tr>
+                                <td>{{ job.title }}</td>
+                                <td>{{ job.company.name }}</td>
+                                <td>{{ job.location|default:"Remote" }}</td>
+                                <td>{{ job.salary|default:"Not specified" }}</td>
+                                <td>{{ job.source }}</td>
+                                <td>{{ job.date_scraped|date:"Y-m-d H:i" }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-light view-job-btn" data-bs-toggle="modal" data-bs-target="#jobModal{{ job.id }}">View</button>
+                                    <a href="{{ job.apply_link }}" target="_blank" class="btn btn-sm btn-primary">Apply</a>
+                                </td>
+                            </tr>
+                            
+                            <!-- Modal for job details -->
+                            <div class="modal fade" id="jobModal{{ job.id }}" tabindex="-1" aria-labelledby="jobModalLabel{{ job.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content bg-dark text-light">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="jobModalLabel{{ job.id }}">{{ job.title }}</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <p><strong>Company:</strong> {{ job.company.name }}</p>
+                                                <p><strong>Location:</strong> {{ job.location|default:"Remote" }}</p>
+                                                <p><strong>Salary:</strong> {{ job.salary|default:"Not specified" }}</p>
+                                                <p><strong>Source:</strong> {{ job.source }}</p>
+                                                <p><strong>Date Scraped:</strong> {{ job.date_scraped|date:"Y-m-d H:i" }}</p>
+                                            </div>
+                                            <div class="mb-3">
+                                                <h6>Job Description</h6>
+                                                <div class="description-content">
+                                                    {{ job.description|linebreaks }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <a href="{{ job.apply_link }}" target="_blank" class="btn btn-primary">Apply</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">No jobs found. Try scraping some jobs first.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('jobSearch');
+        const table = document.getElementById('jobsTable');
+        
+        if (searchInput && table) {
+            searchInput.addEventListener('keyup', function() {
+                const searchText = this.value.toLowerCase();
+                const rows = table.querySelectorAll('tbody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(searchText)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

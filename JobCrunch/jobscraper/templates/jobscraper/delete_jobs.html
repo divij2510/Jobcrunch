@@ -1,0 +1,29 @@
+{% extends 'jobscraper/base.html' %}
+
+{% block title %}Delete Jobs{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Delete Jobs</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{% url 'delete_jobs_before' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="before_date" class="form-label">Delete jobs scraped before:</label>
+                        <input type="date" class="form-control" id="before_date" name="before_date" required>
+                        <div class="form-text text-light">Format: YYYY-MM-DD</div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete these jobs? This action cannot be undone.')">Delete Jobs</button>
+                        <a href="{% url 'index' %}" class="btn btn-outline-light">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

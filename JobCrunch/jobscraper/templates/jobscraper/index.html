@@ -1,0 +1,69 @@
+{% extends 'jobscraper/base.html' %}
+
+{% block title %}JobCrunch - Home{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="mb-0">JobCrunch Dashboard</h4>
+            </div>
+            <div class="card-body">
+                <p class="lead">Welcome to the JobCrunch application. Use the tools below to scrape job listings.</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">TimesJobs Scraper</h5>
+                                <p class="card-text">Scrape the latest jobs from TimesJobs.</p>
+                                <form method="POST" action="{% url 'scrape_timesjobs' %}" class="scrape-form">
+                                    {% csrf_token %}
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary">Start Scraping</button>
+                                    </div>
+                                    <div class="loader mt-3"></div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Wellfound Scraper</h5>
+                                <p class="card-text">Scrape job listings from Wellfound.</p>
+                                <form method="POST" action="{% url 'scrape_wellfound' %}" class="scrape-form">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label for="start_page" class="form-label">Start Page</label>
+                                        <input type="number" class="form-control" id="start_page" name="start_page" value="1" min="1">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="end_page" class="form-label">End Page</label>
+                                        <input type="number" class="form-control" id="end_page" name="end_page" value="5" min="1">
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary">Start Scraping</button>
+                                    </div>
+                                    <div class="loader mt-3"></div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'get_all_jobs' %}" class="btn btn-primary">View All Jobs</a>
+                            <a href="{% url 'get_all_companies' %}" class="btn btn-outline-light">View All Companies</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
