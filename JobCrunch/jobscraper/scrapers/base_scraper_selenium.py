@@ -34,7 +34,8 @@ class BaseScraperSelenium(ABC):
                 options=chrome_options
             )
             if self.driver is None:
-                print(f"url is : {os.getenv("SELENIUM_REMOTE_URL")}")
+                print(f"url is : {os.getenv('SELENIUM_REMOTE_URL')}")
+
         except Exception as e:
             print(f"Problem when initializing driver: {e}")
         finally:
