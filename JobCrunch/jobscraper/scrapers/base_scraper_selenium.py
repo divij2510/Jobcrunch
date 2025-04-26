@@ -13,15 +13,22 @@ class BaseScraperSelenium(ABC):
         self.source_name = None
         self.base_url = None   
 
-    
-
     def init_driver(self):
         chrome_options = Options()
-        chrome_options.add_argument("--headless=new") 
+        if os.getenv('HEADLESS')=='1':
+            chrome_options.add_argument("--headless=new") 
         chrome_options.add_argument("--no-sandbox")  # VERY IMPORTANT for Docker
         chrome_options.add_argument("--disable-dev-shm-usage")  # IMPORTANT for Docker
         chrome_options.add_argument("start-maximized")
         chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+        chrome_options.add_argument("--window-size=1920,1080")
+        chrome_options.add_argument("--lang=en-US,en;q=0.9")
+        chrome_options.add_experimental_option("prefs", {
+            "profile.default_content_setting_values.notifications": 2,
+            "intl.accept_languages": "en-US,en",
+            "credentials_enable_service": False,
+            "profile.password_manager_enabled": False
+        })
         chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         chrome_options.add_experimental_option('useAutomationExtension', False)
         chrome_options.add_argument(
