@@ -7,7 +7,6 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-
 # Install latest stable Chrome from official repo
 RUN apt-get update && apt-get install -y wget \
     && wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
