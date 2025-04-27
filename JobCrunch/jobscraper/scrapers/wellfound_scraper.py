@@ -1,5 +1,6 @@
+# wellfound_scraper.py
 from .base_scraper_selenium import BaseScraperSelenium
-from selenium.webdriver.common.by import By
+from selenium_driverless.types.by import By
 
 class WellfoundScraper(BaseScraperSelenium):
     def __init__(self):
@@ -15,13 +16,16 @@ class WellfoundScraper(BaseScraperSelenium):
         for i in range(start_page, end_page):
             url = f"{self.base_url}{i}"
             try:
-                page_soup = self.get_soup(url, (By.CLASS_NAME, "my-4"), 10)
+                # Use native By class from driverless
+                page_soup = self.get_soup(url,'div',"my-4", 10)
                 company_cards = page_soup.find_all('div', class_='mb-6')
+                
                 for card in company_cards:
                     try:
                         company_ele = card.find('h2', class_='inline text-md font-semibold')
                         company = company_ele.text.strip() if company_ele else "N/A"
                         jobs_section = card.find('div', class_='mb-4 w-full px-4')
+                        
                         if not jobs_section:
                             continue
 
@@ -34,6 +38,7 @@ class WellfoundScraper(BaseScraperSelenium):
                             )
                             if not title_ele:
                                 continue
+                                
                             title = title_ele.text.strip()
                             apply_link = title_ele.get('href')
                             if apply_link and not apply_link.startswith(('http://', 'https://')):
@@ -56,7 +61,6 @@ class WellfoundScraper(BaseScraperSelenium):
                                 elif "M4.33333 6.17139" in path_data:
                                     location = span.get_text(strip=True)
 
-
                             job_data = {
                                 'title': title,
                                 'company': company,
@@ -73,7 +77,7 @@ class WellfoundScraper(BaseScraperSelenium):
             except Exception as e:
                 print(f"Error scraping page {i}: {e}")
                 continue
-            print(f"[times jobs] Scraped {url} successfully!")
+            print(f"[Wellfound] Scraped {url} successfully!")
 
         self.dispose_driver()
         return jobs
