@@ -1,11 +1,12 @@
 FROM python:3.11.12-slim
 
-# Install system dependencies
+# Install dependencies for Chrome
 RUN apt-get update && apt-get install -y \
     wget \
     curl \
     gnupg \
     unzip \
+    jq \
     fonts-liberation \
     libasound2 \
     libatk-bridge2.0-0 \
@@ -26,6 +27,17 @@ RUN apt-get update && apt-get install -y \
     xdg-utils \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
+
+# Install specific Chrome version (135.0.7049.114)
+RUN CHROME_VERSION="135.0.7049.114" \
+    && CHROME_URL="https://storage.googleapis.com/chrome-for-testing-public/${CHROME_VERSION}/linux64/chrome-linux64.zip" \
+    && wget -q --continue -O /tmp/chrome-linux64.zip "$CHROME_URL" \
+    && unzip /tmp/chrome-linux64.zip -d /opt/chrome \
+    && chmod +x /opt/chrome/chrome-linux64/chrome \
+    && rm -rf /tmp/chrome-linux64.zip
+
+# Set Chrome binary location
+ENV CHROME_BIN=/opt/chrome/chrome-linux64/chrome
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1

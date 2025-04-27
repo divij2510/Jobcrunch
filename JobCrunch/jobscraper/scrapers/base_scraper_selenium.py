@@ -7,6 +7,7 @@ from django.utils import timezone
 from jobscraper.models import Company, Job
 from bs4 import BeautifulSoup
 import os
+import undetected_chromedriver as uc
 
 class BaseScraperSelenium(ABC):
     def __init__(self):
@@ -14,37 +15,28 @@ class BaseScraperSelenium(ABC):
         self.base_url = None   
 
     def init_driver(self):
-        chrome_options = Options()
-        if os.getenv('HEADLESS')=='1':
-            chrome_options.add_argument("--headless=new") 
-        chrome_options.add_argument("--no-sandbox")  # VERY IMPORTANT for Docker
-        chrome_options.add_argument("--disable-dev-shm-usage")  # IMPORTANT for Docker
-        chrome_options.add_argument("start-maximized")
-        chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-        chrome_options.add_argument("--window-size=1920,1080")
-        chrome_options.add_argument("--lang=en-US,en;q=0.9")
-        chrome_options.add_experimental_option("prefs", {
-            "profile.default_content_setting_values.notifications": 2,
-            "intl.accept_languages": "en-US,en",
-            "credentials_enable_service": False,
-            "profile.password_manager_enabled": False
-        })
-        chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        chrome_options.add_experimental_option('useAutomationExtension', False)
-        chrome_options.add_argument(
-            "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
-        )
+        options = uc.ChromeOptions()
+        if os.getenv('HEADLESS') == '1':
+            options.add_argument("--headless=new") 
+            options.add_argument("--disable-gpu")
+        
+        # Essential for Docker
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        
+        options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        options.add_experimental_option("useAutomationExtension", False)
+        
+        options.binary_location = os.getenv('CHROME_BIN')
 
         try:
-            self.driver = webdriver.Remote(
-                command_executor=os.getenv("SELENIUM_REMOTE_URL"),
-                options=chrome_options
+            self.driver = uc.Chrome(
+                options=options,
+                version_main=135  
             )
-            if self.driver is None:
-                print(f"url is : {os.getenv('SELENIUM_REMOTE_URL')}")
-
         except Exception as e:
-            print(f"Problem when initializing driver: {e}")
+            print(f"Problem when initializing UC driver: {e}")
         finally:
             return self.driver
 
