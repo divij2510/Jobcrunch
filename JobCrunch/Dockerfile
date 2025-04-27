@@ -33,13 +33,20 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install latest stable Chrome from official repo
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg \
-    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
-    && apt-get update \
-    && apt-get install -y google-chrome-stable \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    curl jq unzip \
+    && curl -s https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json > /tmp/versions.json \
+    && CHROME_URL=$(jq -r '.channels.Stable.downloads.chrome[] | select(.platform=="linux64") | .url' /tmp/versions.json) \
+    && wget -q --continue -O /tmp/chrome-linux64.zip "$CHROME_URL" \
+    && unzip /tmp/chrome-linux64.zip -d /usr/local/bin/chrome \
+    && chmod +x /usr/local/bin/chrome/chrome-linux64/chrome \
+    && ln -s /usr/local/bin/chrome/chrome-linux64/chrome /usr/bin/google-chrome \
+    && rm -rf /tmp/chrome-linux64.zip /tmp/versions.json
 
 # Set environment variables
+ENV CHROME_BIN=/usr/local/bin/chrome/chrome-linux64/chrome
+ENV PATH="/usr/local/bin/chrome/chrome-linux64:${PATH}"
+
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
